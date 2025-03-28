@@ -1,30 +1,52 @@
-import { Text, Image, StyleSheet, View } from "react-native"
+import { Text, Image, StyleSheet, View, TouchableOpacity, Alert } from "react-native"
+import icons from "../../constants/icons.js"
+import { useNavigation } from "@react-navigation/native"
 
 
 export const Home = () => {
+
+    const navigation = useNavigation()
+
+    const handleDelivery = () => {
+        navigation.navigate("Delivery")
+    }
+
     return (
         <View style={styles.container}>
-            <Image source={require('../../../assets/call-center-operator-svgrepo-com.png')} style={styles.image} />
-            <Text style={styles.text}>Vendas</Text>
-            <Image source={require('../../../assets/icons8-entrega-100.png')} style={styles.image} />
-            <Text style={styles.text}>Entregas</Text>
-        </View>
 
+            <TouchableOpacity
+                style={styles.card}
+                onPress={() => Alert.alert("Tela de Vendas")}>
+                <Image source={icons.operator} style={styles.image} />
+                <Text style={styles.text}>Vendas</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.card}
+                onPress={handleDelivery}>
+                <Image source={icons.delivery} style={styles.image} />
+                <Text style={styles.text}>Entregas</Text>
+            </TouchableOpacity>
+
+        </View>
     )
-}
+};
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItens: 'center',
+        alignItems: 'center',
         backgroundColor: '#fff',
-        padding: 16,
-        marginLeft: 16,
+    },
+    card: {
+        alignItems: "center",
+        marginBottom: 60, // Espaçamento entre as Views
     },
     image: {
         width: 100,
         height: 100,
+        marginBottom: 10,
     },
     text: {
         fontSize: 40,
