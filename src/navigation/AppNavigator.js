@@ -1,7 +1,7 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import Home from "../screens/Home/Home";
+import Home from "../screens/Home/home";
 import Login from "../screens/Login/Login";
 import Delivery from "../screens/Delivery/Delivery";
 
@@ -13,7 +13,6 @@ const AppNavigator = () => {
         <NavigationContainer>
             <Stack.Navigator screenOptions={{
                 headerShown: false,
-                cardStyle: { backgroundColor: "#fff" },
             }}>
 
                 <Stack.Screen name="Login" component={Login} />

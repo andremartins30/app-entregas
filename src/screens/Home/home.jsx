@@ -1,4 +1,4 @@
-import { Text, Image, StyleSheet, View, TouchableOpacity, Alert } from "react-native"
+import { Text, Image, StyleSheet, View, TouchableOpacity, Alert, ImageBackground } from "react-native"
 import icons from "../../constants/icons.js"
 import { useNavigation } from "@react-navigation/native"
 
@@ -12,23 +12,41 @@ export const Home = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <>
+            <ImageBackground
+                resizeMode="cover"
+                source={require('../../assets/background5.png')}
+                style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 
-            <TouchableOpacity
-                style={styles.card}
-                onPress={() => Alert.alert("Tela de Vendas")}>
-                <Image source={icons.operator} style={styles.image} />
-                <Text style={styles.text}>Vendas</Text>
-            </TouchableOpacity>
+                <Image
+                    source={require('../../assets/icons/palusa-fix.png')}
+                    resizeMode="cover" // ou 'cover', dependendo do comportamento desejado
+                    style={{
+                        marginTop: 60,
+                        width: 270, // ajuste conforme necessário
+                        height: 150, // ajuste conforme necessário
+                    }}
+                />
 
-            <TouchableOpacity
-                style={styles.card}
-                onPress={handleDelivery}>
-                <Image source={icons.delivery} style={styles.image} />
-                <Text style={styles.text}>Entregas</Text>
-            </TouchableOpacity>
+                <View style={styles.container}>
 
-        </View>
+                    {/* <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => Alert.alert("Tela de Vendas")}>
+                    <Image source={icons.operator} style={styles.image} />
+                    <Text style={styles.text}>Vendas</Text>
+                </TouchableOpacity> */}
+
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={handleDelivery}>
+                        <Image source={icons.delivery} style={styles.image} />
+                        <Text style={styles.text}>Coleta & Entrega</Text>
+                    </TouchableOpacity>
+
+                </View>
+            </ImageBackground>
+        </>
     )
 };
 
@@ -37,7 +55,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        marginBottom: 80, // Espaçamento entre as Views
     },
     card: {
         alignItems: "center",
@@ -46,11 +64,12 @@ const styles = StyleSheet.create({
     image: {
         width: 100,
         height: 100,
-        marginBottom: 10,
+        marginBottom: 30,
     },
     text: {
         fontSize: 40,
         fontWeight: 'bold',
+        color: '#f0f0f0',
     }
 })
 
