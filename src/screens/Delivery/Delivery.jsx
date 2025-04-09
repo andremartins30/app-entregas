@@ -45,7 +45,7 @@ const Delivery = (props) => {
                 </View>
 
             </View>
-            <MyButton text="TESTE" />
+            <MyButton text="INICIAR ENTREGA" />
         </View>
     )
 };

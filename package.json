@@ -13,7 +13,7 @@
     "@expo/vector-icons": "^14.0.4",
     "@react-navigation/native": "^7.0.19",
     "@react-navigation/stack": "^7.2.3",
-    "app-entregas": "file:.",
+    "app-entregas": "file:",
     "expo": "~52.0.41",
     "expo-status-bar": "~2.0.1",
     "react": "18.3.1",
@@ -30,5 +30,6 @@
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-  "private": true
+  "private": true,
+  "packageManager": "yarn@4.8.1+sha512.bc946f2a022d7a1a38adfc15b36a66a3807a67629789496c3714dd1703d2e6c6b1c69ff9ec3b43141ac7a1dd853b7685638eb0074300386a59c18df351ef8ff6"
 }
