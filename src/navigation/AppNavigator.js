@@ -7,24 +7,39 @@ import Delivery from "../screens/Delivery/Delivery";
 import Welcome from "../screens/Welcome/Welcome";
 import Entregas from "../screens/Entregas/Entregas";
 
-
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
     return (
         <NavigationContainer>
-            <Stack.Navigator screenOptions={{
-                headerShown: false,
-            }}>
-                <Stack.Screen name="Welcome" component={Welcome} />
-                <Stack.Screen name="Login" component={Login} />
-                <Stack.Screen name="Home" component={Home} />
-                <Stack.Screen name="Delivery" component={Delivery} />
-                <Stack.Screen name="Entregas" component={Entregas} />
+            <Stack.Navigator
+                screenOptions={{
+                    headerShown: false,
+                }}
+            >
+                <Stack.Screen
+                    name="Welcome"
+                    component={Welcome}
+                />
+                <Stack.Screen
+                    name="Login"
+                    component={Login}
+                />
+                <Stack.Screen
+                    name="Home"
+                    component={Home}
+                />
+                <Stack.Screen
+                    name="Delivery"
+                    component={Delivery}
+                />
+                <Stack.Screen
+                    name="Entregas"
+                    component={Entregas}
+                />
             </Stack.Navigator>
         </NavigationContainer>
-    )
+    );
 };
-
 
 export default AppNavigator;

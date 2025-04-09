@@ -1,13 +1,15 @@
+import { theme } from "../../constants/theme";
+
 export const styles = {
     btnYellow: {
         width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#F7D600",
+        backgroundColor: theme.colors.primary,
         padding: 20
     },
     textDark: {
-        color: "#000000",
+        color: "#fff",
         fontSize: 18,
         fontWeight: "bold"
     },

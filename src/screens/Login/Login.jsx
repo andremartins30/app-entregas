@@ -1,20 +1,42 @@
-import React, { useState } from "react"
-import { Text, TextInput, StyleSheet, View, Image, TouchableOpacity } from "react-native"
-import { Ionicons } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native"
+import React, { useState } from "react";
+import { Text, TextInput, View, Image, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../../hooks/useAuth";
+import { styles } from "./styles";
 
 const Login = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const navigation = useNavigation();
+    const { signIn, loading } = useAuth();
 
-    const [passwordVisible, setPasswordVisible] = useState(false)
-    const navigation = useNavigation()
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert("Erro", "Por favor, preencha todos os campos");
+            return;
+        }
 
-    const handleLogin = () => {
-        navigation.navigate("Home")
+        try {
+            await signIn(email, password);
+            navigation.navigate("Home");
+        } catch (error) {
+            Alert.alert(
+                "Erro na autenticação",
+                error.response?.data?.message || "Erro ao fazer login"
+            );
+        }
     };
+
+    React.useEffect(() => {
+        navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+        });
+    }, [navigation]);
 
     return (
         <View style={styles.container}>
-
             <View style={styles.imageContainer}>
                 <Image
                     style={styles.image}
@@ -29,15 +51,19 @@ const Login = () => {
                     style={styles.input}
                     placeholder="Email"
                     keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
                 />
 
-                <Text style={styles.label}>Senha</Text>
+                <Text style={styles.label}>password</Text>
                 <View style={styles.passwordContainer}>
                     <TextInput
                         style={styles.passwordInput}
-                        placeholder="Senha"
+                        placeholder="password"
                         secureTextEntry={!passwordVisible}
-                        keyboardType="default"
+                        value={password}
+                        onChangeText={setPassword}
                     />
                     <TouchableOpacity
                         onPress={() => setPasswordVisible(!passwordVisible)}>
@@ -51,80 +77,17 @@ const Login = () => {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={handleLogin}>
-                    <Text style={styles.buttonText}>Login</Text>
+                    onPress={handleLogin}
+                    disabled={loading}>
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Login</Text>
+                    )}
                 </TouchableOpacity>
             </View>
         </View>
-    )
-}
+    );
+};
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#e4e5f5',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingTop: 40,
-    },
-    imageContainer: {
-        alignItems: 'center',
-        marginBottom: 50,
-    },
-    image: {
-        width: 270,
-        height: 150,
-    },
-    formContainer: {
-        width: 370,
-        alignItems: 'center',
-    },
-    input: {
-        width: '100%',
-        height: 50,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingLeft: 15,
-        borderRadius: 5,
-        fontSize: 18,
-    },
-    passwordContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '100%',
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        marginBottom: 10,
-        paddingLeft: 15,
-        paddingRight: 10,
-        height: 50,
-    },
-    passwordInput: {
-        flex: 1,
-        fontSize: 18,
-    },
-    label: {
-        fontSize: 18,
-        marginBottom: 5,
-        alignSelf: 'flex-start',
-    },
-    button: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginTop: 10,
-        width: '100%',
-        height: 50,
-        justifyContent: 'center',
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-})
-
-export default Login
+export default Login;

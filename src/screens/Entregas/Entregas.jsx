@@ -2,23 +2,22 @@ import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
+import Header from '../../components/Header/Header'
 
 const Entregas = () => {
     const navigation = useNavigation()
 
-    const handleGoHome = () => {
-        navigation.navigate("Home")
-    }
+    const handleGoBack = () => {
+        navigation.goBack();
+    };
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={handleGoHome} style={styles.arrowButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Minhas Entregas</Text>
-            </View>
-            <Text style={styles.text}>Entregas</Text>
+            <Header
+                title="Minhas Entregas"
+                showBack={true}
+                onBackPress={handleGoBack}
+            />
         </View>
     )
 }

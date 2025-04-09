@@ -8,7 +8,6 @@ const DeliveryCard = () => {
             <Text style={styles.detail}>Cliente: João da Silva</Text>
             <Text style={styles.detail}>Endereço: Av. Julio Campos, 1000</Text>
             <Text style={styles.detail}>Data: 10/04/2025</Text>
-            <Text style={styles.detail}>Horário: 14:00</Text>
             <Text style={styles.detail}>Status: Pendente</Text>
         </View>
     )

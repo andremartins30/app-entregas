@@ -18,8 +18,8 @@ const Delivery = (props) => {
                 initialRegion={{
                     latitude: -15.643448,
                     longitude: -56.159946,
-                    latitudeDelta: 0.0922, // Delta de latitude para zoom
-                    longitudeDelta: 0.0421, // Delta de longitude para zoom
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
                 }}
             >
                 {/* Exemplo de marcador no mapa */}
