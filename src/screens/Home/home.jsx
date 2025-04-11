@@ -1,14 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { Text, StyleSheet, View, TouchableOpacity, Alert, BackHandler } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity, Alert, BackHandler, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import CardDelivery from "../../components/CardDelivery/CardDelivery";
+import { useEntrega } from '../../hooks/useEntrega';
+import { useAuth } from '../../hooks/useAuth';
 import Header from "../../components/Header/Header";
+import DeliveryCard from "../../components/CardDelivery/CardDelivery";
 import { theme } from '../../constants/theme';
 
 export const Home = () => {
     const navigation = useNavigation();
+    const { signOut } = useAuth();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const { listarEntregas, loading } = useEntrega();
+    const [entregas, setEntregas] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
+
+    useEffect(() => {
+        carregarEntregas();
+    }, []);
+
+    const carregarEntregas = async () => {
+        try {
+            setRefreshing(true);
+            const dados = await listarEntregas();
+            setEntregas(dados);
+        } catch (error) {
+            console.error('Erro ao carregar entregas:', error);
+            Alert.alert('Erro', 'Não foi possível carregar as entregas');
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
     useFocusEffect(
         React.useCallback(() => {
@@ -44,7 +68,7 @@ export const Home = () => {
     const handleMenuToggle = () => setMenuOpen(!menuOpen);
     const handleArrowBack = () => setMenuOpen(false);
     const handleDelivery = () => navigation.navigate("Delivery");
-    const handleLogout = () => {
+    const handleLogout = async () => {
         Alert.alert(
             "Desconectar",
             "Deseja desconectar do aplicativo?",
@@ -55,12 +79,20 @@ export const Home = () => {
                 },
                 {
                     text: "Sim",
-                    onPress: () => navigation.navigate("Login")
+                    onPress: async () => {
+                        try {
+                            await signOut();
+                            navigation.navigate("Login");
+                        } catch (error) {
+                            Alert.alert("Erro", "Não foi possível fazer logout");
+                        }
+                    }
                 }
             ]
         );
     };
     const handleEntregas = () => navigation.navigate("Entregas");
+    const handleSettingsToggle = () => setSettingsOpen(!settingsOpen);
 
     return (
         <View style={styles.container}>
@@ -68,6 +100,8 @@ export const Home = () => {
                 title="Home"
                 showMenu={true}
                 onMenuPress={handleMenuToggle}
+                showRefresh={true}
+                onRefreshPress={carregarEntregas}
             />
 
             {menuOpen && (
@@ -85,11 +119,28 @@ export const Home = () => {
                             <Text style={styles.menuItemText}>Minhas Entregas</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={handleDelivery} style={styles.menuItemButton}>
+                        {/* <TouchableOpacity onPress={handleDelivery} style={styles.menuItemButton}>
                             <Ionicons name="bicycle" size={24} color={theme.colors.text} style={styles.menuIcon} />
                             <Text style={styles.menuItemText}>Nova Entrega</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
+
+
+                    <TouchableOpacity onPress={handleSettingsToggle} style={styles.menuItemButton}>
+                        <Ionicons name="settings-outline" size={24} color={theme.colors.text} style={styles.menuIcon} />
+                        <Text style={styles.menuItemText}>Configurações</Text>
+                    </TouchableOpacity>
+
+                    {settingsOpen && (
+                        <View style={styles.dropdownMenu}>
+                            <TouchableOpacity onPress={() => navigation.navigate("Usuarios")} style={styles.dropdownItem}>
+                                <Text style={styles.dropdownItemText}>Usuários</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate("Veiculo")} style={styles.dropdownItem}>
+                                <Text style={styles.dropdownItemText}>Veículo</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
 
                     <TouchableOpacity onPress={handleLogout} style={[styles.menuItemButton, styles.logoutButton]}>
                         <Ionicons name="log-out" size={24} color="#d32f2f" style={styles.menuIcon} />
@@ -97,9 +148,26 @@ export const Home = () => {
                     </TouchableOpacity>
                 </View>
             )}
-            <TouchableOpacity onPress={handleDelivery}>
-                <CardDelivery />
-            </TouchableOpacity>
+
+            <ScrollView style={styles.content}>
+                <View style={styles.entregasContainer}>
+                    {entregas.map((entrega) => (
+                        <TouchableOpacity
+                            key={entrega.id}
+                            onPress={handleDelivery}
+                            style={styles.cardContainer}
+                        >
+                            <DeliveryCard
+                                entrega={entrega}
+                                loading={loading || refreshing}
+                            />
+                        </TouchableOpacity>
+                    ))}
+                    {entregas.length === 0 && !loading && !refreshing && (
+                        <DeliveryCard entrega={null} loading={false} />
+                    )}
+                </View>
+            </ScrollView>
         </View>
     );
 };
@@ -158,6 +226,27 @@ const styles = StyleSheet.create({
     },
     logoutText: {
         color: '#d32f2f',
+    },
+    dropdownMenu: {
+        paddingLeft: 32,
+        marginBottom: 8,
+    },
+    dropdownItem: {
+        paddingVertical: 8,
+    },
+    dropdownItemText: {
+        fontSize: 16,
+        color: theme.colors.text,
+    },
+    content: {
+        flex: 1,
+        padding: 16,
+    },
+    entregasContainer: {
+        flex: 1,
+    },
+    cardContainer: {
+        marginBottom: 16,
     },
 });
 

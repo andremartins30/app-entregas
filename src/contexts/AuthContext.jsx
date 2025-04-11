@@ -1,36 +1,34 @@
-import React, { createContext, useState, useContext } from 'react';
-import api from '../services/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import AuthService from '../services/AuthService';
 
 export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadStoredUser();
+    }, []);
+
+    async function loadStoredUser() {
+        try {
+            const storedUser = await AuthService.getStoredUser();
+            if (storedUser) {
+                setUser(storedUser);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar usuário:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     async function signIn(email, password) {
         try {
             setLoading(true);
-            console.log('Tentando fazer login com:', { email, password });
-            console.log('URL da API:', api.defaults.baseURL);
-
-            const response = await api.post('/usuarios/login', {
-                email,
-                password,
-            });
-
-            console.log('Resposta do servidor:', response.data);
-
-            const { token, user: userData } = response.data;
-
-            // Configura o token nas requisições
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-            // Salva os dados no AsyncStorage
-            await AsyncStorage.setItem('@app:token', token);
-            await AsyncStorage.setItem('@app:user', JSON.stringify(userData));
-
-            setUser(userData);
+            const { user } = await AuthService.login(email, password);
+            setUser(user);
         } catch (error) {
             throw error;
         } finally {
@@ -39,15 +37,34 @@ export function AuthProvider({ children }) {
     }
 
     async function signOut() {
-        await AsyncStorage.removeItem('@app:token');
-        await AsyncStorage.removeItem('@app:user');
-        setUser(null);
-        api.defaults.headers.common['Authorization'] = '';
+        try {
+            setLoading(true);
+            await AuthService.logout();
+            setUser(null);
+        } catch (error) {
+            throw error;
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
-        <AuthContext.Provider value={{ signed: !!user, user, loading, signIn, signOut }}>
+        <AuthContext.Provider value={{
+            signed: !!user,
+            user,
+            loading,
+            signIn,
+            signOut
+        }}>
             {children}
         </AuthContext.Provider>
     );
+}
+
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 }

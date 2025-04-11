@@ -1,14 +1,18 @@
-import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import Header from '../../components/Header/Header'
+import ListaEntregasScreen from '../Lista-Entregas/ListaEntregasScreen'
 
 const Entregas = () => {
     const navigation = useNavigation()
 
     const handleGoBack = () => {
         navigation.goBack();
+    };
+
+    const handleNavigateToListaEntregas = () => {
+        navigation.navigate('ListaEntregasScreen');
     };
 
     return (
@@ -18,6 +22,9 @@ const Entregas = () => {
                 showBack={true}
                 onBackPress={handleGoBack}
             />
+            <TouchableOpacity onPress={handleNavigateToListaEntregas}>
+                <Text>Ver lista de entregas</Text>
+            </TouchableOpacity>
         </View>
     )
 }

@@ -6,6 +6,7 @@ import Login from "../screens/Login/Login";
 import Delivery from "../screens/Delivery/Delivery";
 import Welcome from "../screens/Welcome/Welcome";
 import Entregas from "../screens/Entregas/Entregas";
+import ListaEntregasScreen from "../screens/Lista-Entregas/ListaEntregasScreen";
 
 const Stack = createStackNavigator();
 
@@ -36,6 +37,10 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Entregas"
                     component={Entregas}
+                />
+                <Stack.Screen
+                    name="ListaEntregasScreen"
+                    component={ListaEntregasScreen}
                 />
             </Stack.Navigator>
         </NavigationContainer>
