@@ -68,6 +68,7 @@ export const Home = () => {
     const handleMenuToggle = () => setMenuOpen(!menuOpen);
     const handleArrowBack = () => setMenuOpen(false);
     const handleDelivery = () => navigation.navigate("Delivery");
+    const handleRoute = () => navigation.navigate("Route");
     const handleLogout = async () => {
         Alert.alert(
             "Desconectar",
@@ -154,7 +155,7 @@ export const Home = () => {
                     {entregas.map((entrega) => (
                         <TouchableOpacity
                             key={entrega.id}
-                            onPress={handleDelivery}
+                            onPress={handleRoute}
                             style={styles.cardContainer}
                         >
                             <DeliveryCard
