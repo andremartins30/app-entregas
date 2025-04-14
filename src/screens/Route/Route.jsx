@@ -5,6 +5,8 @@ import * as Location from 'expo-location'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { routeService } from '../../services/routeService'
+import { entregaService } from '../../services/entregaService'
+import { useRoute } from '@react-navigation/native'
 
 const destino = { latitude: -15.5989, longitude: -56.0949 } // Cuiabá
 
@@ -18,6 +20,32 @@ export default function RouteScreen() {
     const [entregaIniciada, setEntregaIniciada] = useState(false)
     const [enderecoOrigem, setEnderecoOrigem] = useState('Carregando...')
     const mapRef = useRef(null)
+    const route = useRoute()
+    const { entregaId } = route.params;
+
+
+    useEffect(() => {
+        const carregarStatusEntrega = async () => {
+            try {
+                const entrega = await entregaService.listarEntrega(entregaId); // você precisa implementar ou confirmar esse método
+                if (entrega.status === 'EM_TRANSITO') {
+                    setEntregaIniciada(true);
+                } else {
+                    setEntregaIniciada(false);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar status da entrega:", error);
+            }
+        };
+
+        carregarStatusEntrega();
+    }, [entregaId]);
+
+
+    useEffect(() => {
+        console.log("ID da entrega:", entregaId)
+    }, [entregaId])
+
 
     useEffect(() => {
         (async () => {
@@ -92,14 +120,29 @@ export default function RouteScreen() {
         }
     }
 
+
     const abrirGoogleMaps = () => {
         const url = `https://www.google.com/maps/dir/?api=1&origin=${origem.latitude},${origem.longitude}&destination=${destino.latitude},${destino.longitude}&travelmode=driving`
         Linking.openURL(url)
     }
 
-    const toggleEntrega = () => {
-        setEntregaIniciada(!entregaIniciada)
+    const toggleEntrega = async () => {
+        try {
+            if (!entregaIniciada) {
+                // Muda de "PENDENTE" para "EM_TRANSITO"
+                await entregaService.atualizarStatusEntrega(entregaId, "EM_TRANSITO");
+            } else {
+                // Muda de "EM_TRANSITO" para "CONCLUIDO"
+                await entregaService.atualizarStatusEntrega(entregaId, "ENTREGUE");
+            }
+
+            setEntregaIniciada(!entregaIniciada);
+        } catch (error) {
+            console.error("Erro ao atualizar status:", error);
+            alert("Não foi possível atualizar o status da entrega.");
+        }
     }
+
 
     if (carregando) {
         return (

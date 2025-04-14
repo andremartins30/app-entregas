@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Text, StyleSheet, View, TouchableOpacity, Alert, BackHandler, ScrollView } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { Text, StyleSheet, View, TouchableOpacity, Alert, BackHandler, ScrollView, Animated, PanResponder, TouchableWithoutFeedback } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useEntrega } from '../../hooks/useEntrega';
@@ -16,6 +16,27 @@ export const Home = () => {
     const { listarEntregas, loading } = useEntrega();
     const [entregas, setEntregas] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
+
+
+    const drawerAnim = useRef(new Animated.Value(-280)).current;
+
+    // PanResponder para detectar gesto de arrastar
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (evt, gestureState) => Math.abs(gestureState.dx) > 20,
+            onPanResponderRelease: (evt, gestureState) => {
+                if (gestureState.dx < -50) {
+                    closeDrawer();
+                } else {
+                    Animated.timing(drawerAnim, {
+                        toValue: 0,
+                        duration: 150,
+                        useNativeDriver: true,
+                    }).start();
+                }
+            },
+        })
+    ).current;
 
     useEffect(() => {
         carregarEntregas();
@@ -65,10 +86,36 @@ export const Home = () => {
         }, [navigation])
     );
 
-    const handleMenuToggle = () => setMenuOpen(!menuOpen);
-    const handleArrowBack = () => setMenuOpen(false);
+    const openDrawer = () => {
+        setMenuOpen(true);
+        Animated.timing(drawerAnim, {
+            toValue: 0,
+            duration: 250,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const closeDrawer = () => {
+        Animated.timing(drawerAnim, {
+            toValue: -280,
+            duration: 250,
+            useNativeDriver: true,
+        }).start(() => setMenuOpen(false));
+    };
+
+    const handleMenuToggle = () => {
+        if (menuOpen) {
+            closeDrawer();
+        } else {
+            openDrawer();
+        }
+    };
+
+    const handleArrowBack = () => closeDrawer();
     const handleDelivery = () => navigation.navigate("Delivery");
-    const handleRoute = () => navigation.navigate("Route");
+    const handleRoute = (entregaId) => {
+        navigation.navigate("Route", { entregaId });
+    };
     const handleLogout = async () => {
         Alert.alert(
             "Desconectar",
@@ -106,7 +153,19 @@ export const Home = () => {
             />
 
             {menuOpen && (
-                <View style={styles.drawer}>
+                <TouchableWithoutFeedback onPress={closeDrawer}>
+                    <View style={styles.overlay} />
+                </TouchableWithoutFeedback>
+            )}
+
+            {menuOpen && (
+                <Animated.View
+                    style={[
+                        styles.drawer,
+                        { transform: [{ translateX: drawerAnim }] },
+                    ]}
+                    {...panResponder.panHandlers}
+                >
                     <View style={styles.drawerHeaderContainer}>
                         <Text style={styles.drawerHeader}>Menu</Text>
                         <TouchableOpacity style={styles.arrowButton} onPress={handleArrowBack}>
@@ -125,7 +184,6 @@ export const Home = () => {
                             <Text style={styles.menuItemText}>Nova Entrega</Text>
                         </TouchableOpacity> */}
                     </View>
-
 
                     <TouchableOpacity onPress={handleSettingsToggle} style={styles.menuItemButton}>
                         <Ionicons name="settings-outline" size={24} color={theme.colors.text} style={styles.menuIcon} />
@@ -147,7 +205,7 @@ export const Home = () => {
                         <Ionicons name="log-out" size={24} color="#d32f2f" style={styles.menuIcon} />
                         <Text style={[styles.menuItemText, styles.logoutText]}>Sair</Text>
                     </TouchableOpacity>
-                </View>
+                </Animated.View>
             )}
 
             <ScrollView style={styles.content}>
@@ -155,7 +213,8 @@ export const Home = () => {
                     {entregas.map((entrega) => (
                         <TouchableOpacity
                             key={entrega.id}
-                            onPress={handleRoute}
+                            onPress={menuOpen ? () => { } : () => handleRoute(entrega.id)}
+                            disabled={menuOpen}
                             style={styles.cardContainer}
                         >
                             <DeliveryCard
@@ -178,6 +237,16 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
         position: 'relative',
+    },
+    // Overlay para capturar toques fora do menu
+    overlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.2)",
+        zIndex: 0,
     },
     drawer: {
         position: 'absolute',
@@ -212,6 +281,9 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 8,
         backgroundColor: 'rgba(0, 123, 255, 0.1)',
+    },
+    arrowButton: {
+        padding: 8,
     },
     menuIcon: {
         marginRight: 16,

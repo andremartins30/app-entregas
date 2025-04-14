@@ -41,5 +41,39 @@ export const entregaService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    async listarEntrega(id: number) {
+        try {
+            const token = await AsyncStorage.getItem('@app:token');
+
+            const response = await api.get(`/entregas/delivery/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async atualizarStatusEntrega(id: number, status: string) {
+        try {
+            const token = await AsyncStorage.getItem('@app:token');
+
+            const response = await api.put(`/entregas/delivery/status/${id}`, { status }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 }; 
