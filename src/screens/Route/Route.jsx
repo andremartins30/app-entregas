@@ -43,11 +43,6 @@ export default function RouteScreen() {
 
 
     useEffect(() => {
-        console.log("ID da entrega:", entregaId)
-    }, [entregaId])
-
-
-    useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync()
             if (status !== 'granted') {
