@@ -75,5 +75,22 @@ export const entregaService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    async listarEntregasDoEntregador() {
+        try {
+            const token = await AsyncStorage.getItem('@app:token');
+
+            const response = await api.get('/entregas/delivery/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 }; 

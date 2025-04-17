@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { theme } from '../../constants/theme'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const formatDate = (dateString) => {
     if (!dateString) return 'Data não disponível';
@@ -68,6 +69,8 @@ const StatusProgress = ({ status }) => {
 };
 
 const DeliveryCard = ({ entrega, loading }) => {
+    console.log('DeliveryCard props:', { entrega, loading });
+
     if (loading) {
         return (
             <View style={styles.card}>

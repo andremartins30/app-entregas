@@ -1,43 +1,42 @@
 import React, { useState } from "react";
-import { Text, TextInput, View, Image, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView } from "react-native";
+import { Text, TextInput, View, Image, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, CheckBox } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../hooks/useAuth";
 import { styles } from "./styles";
 
-const Login = () => {
+const Register = () => {
+    const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
     const navigation = useNavigation();
-    const { signIn, loading } = useAuth();
+    const { register, loading } = useAuth();
 
-    const handleLogin = async () => {
-        if (!email || !password) {
+    const handleRegister = async () => {
+        if (!nome || !email || !password || !confirmPassword) {
             Alert.alert("Erro", "Por favor, preencha todos os campos");
             return;
         }
 
+        if (password !== confirmPassword) {
+            Alert.alert("Erro", "As senhas não coincidem");
+            return;
+        }
+
         try {
-            await signIn(email, password);
-            navigation.navigate("Home");
+            await register(nome, email, password);
+            navigation.navigate("Login");
+
         } catch (error) {
             Alert.alert(
-                "Erro na autenticação",
-                error.response?.data?.message || "Erro ao fazer login"
+                "Erro no cadastro",
+                error.response?.data?.message || "Erro ao realizar cadastro"
             );
         }
     };
-
-    const handleRegister = () => {
-        navigation.navigate("Register");
-    }
-
-    React.useEffect(() => {
-        navigation.addListener('beforeRemove', (e) => {
-            e.preventDefault();
-        });
-    }, [navigation]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -51,7 +50,16 @@ const Login = () => {
                 </View>
 
                 <View style={styles.formContainer}>
-                    <Text style={styles.label}>Login</Text>
+                    <Text style={styles.label}>Nome</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Nome completo"
+                        value={nome}
+                        onChangeText={setNome}
+                        autoCapitalize="words"
+                    />
+
+                    <Text style={styles.label}>Email</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Email"
@@ -80,21 +88,40 @@ const Login = () => {
                         </TouchableOpacity>
                     </View>
 
+                    <Text style={styles.label}>Confirmar Senha</Text>
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={styles.passwordInput}
+                            placeholder="Confirmar senha"
+                            secureTextEntry={!confirmPasswordVisible}
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
+                        />
+                        <TouchableOpacity
+                            onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
+                            <Ionicons
+                                name={confirmPasswordVisible ? "eye-off" : "eye"}
+                                size={24}
+                                color="gray"
+                            />
+                        </TouchableOpacity>
+                    </View>
+
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={handleLogin}
+                        onPress={handleRegister}
                         disabled={loading}>
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Login</Text>
+                            <Text style={styles.buttonText}>Cadastrar</Text>
                         )}
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        onPress={handleRegister}
+                        onPress={() => navigation.navigate("Login")}
                         style={{ marginTop: 30, alignItems: 'center' }}>
-                        <Text style={styles.registerButton}>Não tem uma conta? Cadastre-se</Text>
+                        <Text style={styles.loginButton}>Já tem uma conta? Faça login</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -102,4 +129,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register; 

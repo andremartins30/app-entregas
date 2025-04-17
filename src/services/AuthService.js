@@ -31,6 +31,19 @@ const AuthService = {
         }
     },
 
+    async register(nome, email, password) {
+        try {
+            await api.post('/usuarios/register', {
+                nome,
+                email,
+                password,
+            });
+
+        } catch (error) {
+            throw error;
+        }
+    },
+
     async saveUserData(token, user) {
         await AsyncStorage.setItem('@app:token', token);
         await AsyncStorage.setItem('@app:user', JSON.stringify(user));

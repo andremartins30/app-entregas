@@ -1179,9 +1179,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/cli@npm:0.22.24":
-  version: 0.22.24
-  resolution: "@expo/cli@npm:0.22.24"
+"@expo/cli@npm:0.22.26":
+  version: 0.22.26
+  resolution: "@expo/cli@npm:0.22.26"
   dependencies:
     "@0no-co/graphql.web": "npm:^1.0.8"
     "@babel/runtime": "npm:^7.20.0"
@@ -1196,7 +1196,7 @@ __metadata:
     "@expo/osascript": "npm:^2.1.6"
     "@expo/package-manager": "npm:^1.7.2"
     "@expo/plist": "npm:^0.2.2"
-    "@expo/prebuild-config": "npm:^8.0.31"
+    "@expo/prebuild-config": "npm:~8.2.0"
     "@expo/rudder-sdk-node": "npm:^1.1.1"
     "@expo/spawn-async": "npm:^1.7.2"
     "@expo/ws-tunnel": "npm:^1.0.1"
@@ -1257,7 +1257,7 @@ __metadata:
     ws: "npm:^8.12.1"
   bin:
     expo-internal: build/bin/cli
-  checksum: 10c0/edebcd0c2196d14d7aa6d2c0cbf99355419f2efd0943a6196ee6263b401fcf0c83aac11a575d044a3356b5bb29ebae4ba39716bcc2814577813fcd5c1b76e687
+  checksum: 10c0/ce7d048e4fc7181dd45210732a4341f381ef85edad05b167089b55b9d077868a44816a3f70a0fc90875b84fb3574fb1a43810e8b423b33761993b6e7d51793a0
   languageName: node
   linkType: hard
 
@@ -1470,9 +1470,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/prebuild-config@npm:^8.0.31":
-  version: 8.0.31
-  resolution: "@expo/prebuild-config@npm:8.0.31"
+"@expo/prebuild-config@npm:~8.2.0":
+  version: 8.2.0
+  resolution: "@expo/prebuild-config@npm:8.2.0"
   dependencies:
     "@expo/config": "npm:~10.0.11"
     "@expo/config-plugins": "npm:~9.0.17"
@@ -1485,7 +1485,7 @@ __metadata:
     resolve-from: "npm:^5.0.0"
     semver: "npm:^7.6.0"
     xml2js: "npm:0.6.0"
-  checksum: 10c0/a0e4e7ebe3703315cefb1898951123ecbfad3f352da0c1cd754621464810853b3676ce43de6c610178af193b2291456f69736171f192dbc096c609a6b6bd56e4
+  checksum: 10c0/e3e523740fca7fc506645d055a9960559ffbc0cc0a8b24403f44b18d89a43cf30b16e1677cbf2c8000e1da74a67811287ee0eaf2956e0de60ca205a4b1d05e89
   languageName: node
   linkType: hard
 
@@ -2463,7 +2463,7 @@ __metadata:
     "@types/react": "npm:~18.3.12"
     app-entregas: "file:"
     axios: "npm:0.27.2"
-    expo: "npm:~52.0.42"
+    expo: "npm:~52.0.46"
     expo-location: "npm:18.0.10"
     expo-status-bar: "npm:~2.0.1"
     maps: "npm:^0.3.3"
@@ -3893,12 +3893,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:~52.0.42":
-  version: 52.0.44
-  resolution: "expo@npm:52.0.44"
+"expo@npm:~52.0.46":
+  version: 52.0.46
+  resolution: "expo@npm:52.0.46"
   dependencies:
     "@babel/runtime": "npm:^7.20.0"
-    "@expo/cli": "npm:0.22.24"
+    "@expo/cli": "npm:0.22.26"
     "@expo/config": "npm:~10.0.11"
     "@expo/config-plugins": "npm:~9.0.17"
     "@expo/fingerprint": "npm:0.11.11"
@@ -3932,7 +3932,7 @@ __metadata:
     expo: bin/cli
     expo-modules-autolinking: bin/autolinking
     fingerprint: bin/fingerprint
-  checksum: 10c0/5a47bb7d811b46dc0783b09fb2451fb4a454e304f5d720866ff99b97504c03f4d612f95a8ff02b391d396daa071688a4d34da28e8e69ee95ad9038cd8a32acf9
+  checksum: 10c0/e0dafbec1d3a8f143ae00938e8e83df8fd99a49f1126b55b21fe48181ad8e643c67270b810570ddee6d1f4f3b9b1c6aaf24dbea5e36a719916f5f7e0dcad2cf6
   languageName: node
   linkType: hard
 

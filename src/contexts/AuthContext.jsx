@@ -48,13 +48,25 @@ export function AuthProvider({ children }) {
         }
     }
 
+    async function register(nome, email, password) {
+        try {
+            setLoading(true);
+            await AuthService.register(nome, email, password);
+        } catch (error) {
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <AuthContext.Provider value={{
             signed: !!user,
             user,
             loading,
             signIn,
-            signOut
+            signOut,
+            register
         }}>
             {children}
         </AuthContext.Provider>

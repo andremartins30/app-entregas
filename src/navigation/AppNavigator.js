@@ -8,6 +8,7 @@ import Welcome from "../screens/Welcome/Welcome";
 import Entregas from "../screens/Entregas/Entregas";
 import ListaEntregasScreen from "../screens/Lista-Entregas/ListaEntregasScreen";
 import Route from "../screens/Route/Route"
+import Register from "../screens/Register/Register";
 
 const Stack = createStackNavigator();
 
@@ -26,6 +27,10 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Login"
                     component={Login}
+                />
+                <Stack.Screen
+                    name="Register"
+                    component={Register}
                 />
                 <Stack.Screen
                     name="Home"

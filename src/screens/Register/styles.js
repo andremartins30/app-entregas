@@ -6,11 +6,11 @@ export const styles = StyleSheet.create({
         backgroundColor: '#e4e5f5',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingTop: 40,
+        paddingTop: 30,
     },
     imageContainer: {
         alignItems: 'center',
-        marginBottom: 50,
+        marginBottom: 10,
     },
     image: {
         width: 270,
@@ -66,12 +66,19 @@ export const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
-    errorText: {
-        color: 'red',
+    termsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginTop: 10,
-        fontSize: 14,
+        marginBottom: 20,
+        width: '100%',
     },
-    registerButton: {
+    termsText: {
+        marginLeft: 10,
+        fontSize: 16,
+        flex: 1,
+    },
+    loginButton: {
         fontSize: 18,
         padding: 10,
         borderRadius: 5,
@@ -80,4 +87,4 @@ export const styles = StyleSheet.create({
         color: '#007BFF',
         textDecorationLine: 'underline',
     },
-});
+}); 

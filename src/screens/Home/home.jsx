@@ -13,10 +13,9 @@ export const Home = () => {
     const { signOut } = useAuth();
     const [menuOpen, setMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { listarEntregas, loading } = useEntrega();
+    const { listarEntregasDoEntregador, loading } = useEntrega();
     const [entregas, setEntregas] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
-
 
     const drawerAnim = useRef(new Animated.Value(-280)).current;
 
@@ -45,8 +44,9 @@ export const Home = () => {
     const carregarEntregas = async () => {
         try {
             setRefreshing(true);
-            const dados = await listarEntregas();
-            setEntregas(dados);
+            const dados = await listarEntregasDoEntregador();
+            console.log('Dados recebidos:', dados);
+            setEntregas(dados || []);
         } catch (error) {
             console.error('Erro ao carregar entregas:', error);
             Alert.alert('Erro', 'Não foi possível carregar as entregas');
@@ -210,20 +210,23 @@ export const Home = () => {
 
             <ScrollView style={styles.content}>
                 <View style={styles.entregasContainer}>
-                    {entregas.map((entrega) => (
-                        <TouchableOpacity
-                            key={entrega.id}
-                            onPress={menuOpen ? () => { } : () => handleRoute(entrega.id)}
-                            disabled={menuOpen}
-                            style={styles.cardContainer}
-                        >
-                            <DeliveryCard
-                                entrega={entrega}
-                                loading={loading || refreshing}
-                            />
-                        </TouchableOpacity>
-                    ))}
-                    {entregas.length === 0 && !loading && !refreshing && (
+                    {loading || refreshing ? (
+                        <DeliveryCard entrega={null} loading={true} />
+                    ) : entregas.length > 0 ? (
+                        entregas.map((entrega) => (
+                            <TouchableOpacity
+                                key={entrega.id}
+                                onPress={menuOpen ? () => { } : () => handleRoute(entrega.id)}
+                                disabled={menuOpen}
+                                style={styles.cardContainer}
+                            >
+                                <DeliveryCard
+                                    entrega={entrega}
+                                    loading={false}
+                                />
+                            </TouchableOpacity>
+                        ))
+                    ) : (
                         <DeliveryCard entrega={null} loading={false} />
                     )}
                 </View>

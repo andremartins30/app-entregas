@@ -39,9 +39,26 @@ export function useEntrega() {
         }
     };
 
+    const listarEntregasDoEntregador = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await entregaService.listarEntregasDoEntregador();
+            return response;
+        } catch (error: any) {
+            setError(error.response?.data?.error || 'Erro ao listar entregas do entregador');
+            Alert.alert('Erro', error.response?.data?.error || 'Erro ao listar entregas do entregador');
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return {
         criarEntrega,
         listarEntregas,
+        listarEntregasDoEntregador,
         loading,
         error
     };
