@@ -69,7 +69,6 @@ const StatusProgress = ({ status }) => {
 };
 
 const DeliveryCard = ({ entrega, loading }) => {
-    console.log('DeliveryCard props:', { entrega, loading });
 
     if (loading) {
         return (

@@ -9,6 +9,7 @@ import Entregas from "../screens/Entregas/Entregas";
 import ListaEntregasScreen from "../screens/Lista-Entregas/ListaEntregasScreen";
 import Route from "../screens/Route/Route"
 import Register from "../screens/Register/Register";
+import Veiculos from "../screens/Veiculos/Veiculos";
 
 const Stack = createStackNavigator();
 
@@ -51,6 +52,10 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Route"
                     component={Route}
+                />
+                <Stack.Screen
+                    name="Veiculos"
+                    component={Veiculos}
                 />
             </Stack.Navigator>
         </NavigationContainer>

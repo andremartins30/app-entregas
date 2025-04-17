@@ -45,7 +45,6 @@ export const Home = () => {
         try {
             setRefreshing(true);
             const dados = await listarEntregasDoEntregador();
-            console.log('Dados recebidos:', dados);
             setEntregas(dados || []);
         } catch (error) {
             console.error('Erro ao carregar entregas:', error);
@@ -113,6 +112,7 @@ export const Home = () => {
 
     const handleArrowBack = () => closeDrawer();
     const handleDelivery = () => navigation.navigate("Delivery");
+    const handleVeiculos = () => navigation.navigate("Veiculos");
     const handleRoute = (entregaId) => {
         navigation.navigate("Route", { entregaId });
     };
@@ -179,10 +179,10 @@ export const Home = () => {
                             <Text style={styles.menuItemText}>Minhas Entregas</Text>
                         </TouchableOpacity>
 
-                        {/* <TouchableOpacity onPress={handleDelivery} style={styles.menuItemButton}>
-                            <Ionicons name="bicycle" size={24} color={theme.colors.text} style={styles.menuIcon} />
-                            <Text style={styles.menuItemText}>Nova Entrega</Text>
-                        </TouchableOpacity> */}
+                        <TouchableOpacity onPress={handleVeiculos} style={styles.menuItemButton}>
+                            <Ionicons name="" size={24} color={theme.colors.text} style={styles.menuIcon} />
+                            <Text style={styles.menuItemText}>Meus Veículos</Text>
+                        </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity onPress={handleSettingsToggle} style={styles.menuItemButton}>
