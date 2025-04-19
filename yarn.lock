@@ -1818,6 +1818,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/masked-view@npm:^0.1.11":
+  version: 0.1.11
+  resolution: "@react-native-community/masked-view@npm:0.1.11"
+  peerDependencies:
+    react: ">=16.0"
+    react-native: ">=0.57"
+  checksum: 10c0/439ca5f790641536a0de498a1cbcf69af53466cbf32aa851bcbb8c4b5240e46e77857625e3340777f6f0ec969f8851becf51dfe22d36713786be8426d98f9a64
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.76.9":
   version: 0.76.9
   resolution: "@react-native/assets-registry@npm:0.76.9"
@@ -2458,12 +2468,15 @@ __metadata:
     "@expo/metro-runtime": "npm:~4.0.1"
     "@expo/vector-icons": "npm:^14.1.0"
     "@react-native-async-storage/async-storage": "npm:1.23.1"
+    "@react-native-community/masked-view": "npm:^0.1.11"
     "@react-navigation/native": "npm:^7.0.19"
     "@react-navigation/stack": "npm:^7.2.3"
     "@types/react": "npm:~18.3.12"
     app-entregas: "file:"
     axios: "npm:0.27.2"
     expo: "npm:~52.0.46"
+    expo-camera: "npm:16.0.18"
+    expo-image-picker: "npm:16.0.6"
     expo-location: "npm:18.0.10"
     expo-status-bar: "npm:~2.0.1"
     maps: "npm:^0.3.3"
@@ -3800,6 +3813,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-camera@npm:16.0.18":
+  version: 16.0.18
+  resolution: "expo-camera@npm:16.0.18"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native-web:
+      optional: true
+  checksum: 10c0/19d6f27af22d6e148b0bd7dc1dc37778b155ce0454515045a07e7dcc2b0474aa3d0d0986684fcbfe16837cffa41b33128d23376454d975b09b592c3dd92fe803
+  languageName: node
+  linkType: hard
+
 "expo-constants@npm:~17.0.8":
   version: 17.0.8
   resolution: "expo-constants@npm:17.0.8"
@@ -3834,6 +3864,26 @@ __metadata:
     expo: "*"
     react: "*"
   checksum: 10c0/3b9835f622b9e7f436909d76a88f6593e7d75dead586cbb3269abc75edb2a8e69b6d8c4f0faf7f979276675449ba6455cda72c7483744c878afe85b2c871a9e8
+  languageName: node
+  linkType: hard
+
+"expo-image-loader@npm:~5.0.0":
+  version: 5.0.0
+  resolution: "expo-image-loader@npm:5.0.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/d9982e94c0437967d61b231ab12b32a47e3f96ceee0674b243621d87a9eedbedbc6e6879962ba7fe032c18dbc801cbb54034b56d1426e847dc7b9a8a29bfc740
+  languageName: node
+  linkType: hard
+
+"expo-image-picker@npm:16.0.6":
+  version: 16.0.6
+  resolution: "expo-image-picker@npm:16.0.6"
+  dependencies:
+    expo-image-loader: "npm:~5.0.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/6cadacb09e902ee87fac1f081f3047bed233380a45bbe6313b320e67a966adf92787689c3bf76948dc0faffb0ab7543e7dd83ebd8bcdd901e5cfbacd5e2e2429
   languageName: node
   linkType: hard
 

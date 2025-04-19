@@ -60,7 +60,7 @@ const StatusProgress = ({ status }) => {
 
             {/* Labels de status com novo alinhamento */}
             <View style={styles.statusLabels}>
-                <Text style={[styles.statusText, styles.statusLeft]}>Pendente</Text>
+                <Text style={[styles.statusText, styles.statusLeft]}>A Retirar</Text>
                 <Text style={[styles.statusText, styles.statusCenter]}>Em Trânsito</Text>
                 <Text style={[styles.statusText, styles.statusRight]}>Entregue</Text>
             </View>

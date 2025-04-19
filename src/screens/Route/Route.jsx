@@ -126,12 +126,17 @@ export default function RouteScreen() {
             if (!entregaIniciada) {
                 // Muda de "PENDENTE" para "EM_TRANSITO"
                 await entregaService.atualizarStatusEntrega(entregaId, "EM_TRANSITO");
+                setEntregaIniciada(true);
             } else {
-                // Muda de "EM_TRANSITO" para "CONCLUIDO"
-                await entregaService.atualizarStatusEntrega(entregaId, "ENTREGUE");
+                // Se a entrega já está iniciada, navega para a tela de finalização
+                navigation.navigate('DeliveryComplete', {
+                    entregaId,
+                    origem: enderecoOrigem,
+                    destino: 'Cuiabá',
+                    distancia: infoRota.distancia.toFixed(1),
+                    duracao: Math.round(infoRota.duracao)
+                });
             }
-
-            setEntregaIniciada(!entregaIniciada);
         } catch (error) {
             console.error("Erro ao atualizar status:", error);
             alert("Não foi possível atualizar o status da entrega.");
