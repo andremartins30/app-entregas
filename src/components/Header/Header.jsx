@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../constants/theme';
 
-const Header = ({ title, showMenu, onMenuPress, showBack, onBackPress, showRefresh, onRefreshPress }) => {
+const Header = ({ title, showMenu, onMenuPress, showBack, onBackPress, showRefresh, onRefreshPress, rightComponent }) => {
     return (
         <View style={styles.header}>
             <View style={styles.leftContainer}>
@@ -25,6 +25,7 @@ const Header = ({ title, showMenu, onMenuPress, showBack, onBackPress, showRefre
                         <Ionicons name="refresh" size={24} color={theme.colors.text} />
                     </TouchableOpacity>
                 )}
+                {rightComponent}
             </View>
         </View>
     );

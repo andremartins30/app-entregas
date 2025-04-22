@@ -53,12 +53,31 @@ export function useEntrega() {
         } finally {
             setLoading(false);
         }
-    }
+    };
+
+    const countEntregasDoEntregador = async (): Promise<number> => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            // chama o serviço e recebe um número
+            const count = await entregaService.countEntregasDoEntregador()
+            return count
+        } catch (err: any) {
+            const msg = err.response?.data?.error || 'Erro ao contar entregas'
+            setError(msg)
+            Alert.alert('Erro', msg)
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    };
 
     return {
         criarEntrega,
         listarEntregas,
         listarEntregasDoEntregador,
+        countEntregasDoEntregador,
         loading,
         error
     };

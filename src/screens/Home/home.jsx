@@ -1,25 +1,28 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Text, StyleSheet, View, TouchableOpacity, Alert, BackHandler, ScrollView, Animated, PanResponder, TouchableWithoutFeedback } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { Text, StyleSheet, View, TouchableOpacity, Alert, BackHandler, Animated, PanResponder, TouchableWithoutFeedback } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { useEntrega } from '../../hooks/useEntrega';
 import { useAuth } from '../../hooks/useAuth';
 import Header from "../../components/Header/Header";
-import DeliveryCard from "../../components/CardDelivery/CardDelivery";
 import { theme } from '../../constants/theme';
+import { useEntrega } from "../../hooks/useEntrega";
 
 export const Home = () => {
     const navigation = useNavigation();
     const { signOut } = useAuth();
     const [menuOpen, setMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { listarEntregasDoEntregador, loading } = useEntrega();
-    const [entregas, setEntregas] = useState([]);
-    const [refreshing, setRefreshing] = useState(false);
-
     const drawerAnim = useRef(new Animated.Value(-280)).current;
+    const { countEntregasDoEntregador } = useEntrega();
+    const [avaliableCount, setAvailableCount] = useState(0);
 
-    // PanResponder para detectar gesto de arrastar
+    useEffect(() => {
+        countEntregasDoEntregador()
+            .then(count => setAvailableCount(count))   // recebe número diretamente
+            .catch(err => console.error('Erro ao contar:', err))
+    }, [])
+
+    // PanResponder configuration remains the same
     const panResponder = useRef(
         PanResponder.create({
             onMoveShouldSetPanResponder: (evt, gestureState) => Math.abs(gestureState.dx) > 20,
@@ -37,23 +40,7 @@ export const Home = () => {
         })
     ).current;
 
-    useEffect(() => {
-        carregarEntregas();
-    }, []);
-
-    const carregarEntregas = async () => {
-        try {
-            setRefreshing(true);
-            const dados = await listarEntregasDoEntregador();
-            setEntregas(dados || []);
-        } catch (error) {
-            console.error('Erro ao carregar entregas:', error);
-            Alert.alert('Erro', 'Não foi possível carregar as entregas');
-        } finally {
-            setRefreshing(false);
-        }
-    };
-
+    // Back button handler remains the same
     useFocusEffect(
         React.useCallback(() => {
             const backAction = () => {
@@ -85,6 +72,7 @@ export const Home = () => {
         }, [navigation])
     );
 
+    // Menu functions remain the same
     const openDrawer = () => {
         setMenuOpen(true);
         Animated.timing(drawerAnim, {
@@ -110,12 +98,12 @@ export const Home = () => {
         }
     };
 
-    const handleArrowBack = () => closeDrawer();
+    // Navigation handlers
     const handleDelivery = () => navigation.navigate("Delivery");
     const handleVeiculos = () => navigation.navigate("Veiculos");
-    const handleRoute = (entregaId) => {
-        navigation.navigate("Route", { entregaId });
-    };
+    const handleEntregas = () => navigation.navigate("Entregas");
+    const handleSettingsToggle = () => setSettingsOpen(!settingsOpen);
+
     const handleLogout = async () => {
         Alert.alert(
             "Desconectar",
@@ -139,17 +127,33 @@ export const Home = () => {
             ]
         );
     };
-    const handleEntregas = () => navigation.navigate("Entregas");
-    const handleSettingsToggle = () => setSettingsOpen(!settingsOpen);
+
+    const handleRefresh = async () => {
+        try {
+            const newCount = await countEntregasDoEntregador();
+            if (newCount !== avaliableCount) {
+                setAvailableCount(newCount);
+                // Opcional: Mostrar uma mensagem de atualização
+                Alert.alert(
+                    "Atualização",
+                    "Novas entregas disponíveis!",
+                    [{ text: "OK" }]
+                );
+            }
+        } catch (err) {
+            console.error('Erro ao atualizar:', err);
+            Alert.alert("Erro", "Não foi possível atualizar as entregas");
+        }
+    };
 
     return (
         <View style={styles.container}>
             <Header
-                title="Home"
+                title="Dashboard"
                 showMenu={true}
                 onMenuPress={handleMenuToggle}
+                onRefreshPress={handleRefresh}
                 showRefresh={true}
-                onRefreshPress={carregarEntregas}
             />
 
             {menuOpen && (
@@ -158,6 +162,7 @@ export const Home = () => {
                 </TouchableWithoutFeedback>
             )}
 
+            {/* Menu drawer remains the same */}
             {menuOpen && (
                 <Animated.View
                     style={[
@@ -168,23 +173,29 @@ export const Home = () => {
                 >
                     <View style={styles.drawerHeaderContainer}>
                         <Text style={styles.drawerHeader}>Menu</Text>
-                        <TouchableOpacity style={styles.arrowButton} onPress={handleArrowBack}>
+                        <TouchableOpacity style={styles.arrowButton} onPress={closeDrawer}>
                             <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.drawerContent}>
+                        <TouchableOpacity onPress={handleDelivery} style={styles.menuItemButton}>
+                            <Ionicons name="list-outline" size={24} color={theme.colors.text} style={styles.menuIcon} />
+                            <Text style={styles.menuItemText}>Entregas Disponíveis</Text>
+                        </TouchableOpacity>
+
                         <TouchableOpacity onPress={handleEntregas} style={styles.menuItemButton}>
-                            <Ionicons name="list" size={24} color={theme.colors.text} style={styles.menuIcon} />
-                            <Text style={styles.menuItemText}>Minhas Entregas</Text>
+                            <Ionicons name="time" size={24} color={theme.colors.text} style={styles.menuIcon} />
+                            <Text style={styles.menuItemText}>Histórico de Entregas</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={handleVeiculos} style={styles.menuItemButton}>
-                            <Ionicons name="" size={24} color={theme.colors.text} style={styles.menuIcon} />
+                            <Ionicons name="bicycle-outline" size={24} color={theme.colors.text} style={styles.menuIcon} />
                             <Text style={styles.menuItemText}>Meus Veículos</Text>
                         </TouchableOpacity>
                     </View>
 
+                    {/* Settings menu remains the same */}
                     <TouchableOpacity onPress={handleSettingsToggle} style={styles.menuItemButton}>
                         <Ionicons name="settings-outline" size={24} color={theme.colors.text} style={styles.menuIcon} />
                         <Text style={styles.menuItemText}>Configurações</Text>
@@ -208,29 +219,31 @@ export const Home = () => {
                 </Animated.View>
             )}
 
-            <ScrollView style={styles.content}>
-                <View style={styles.entregasContainer}>
-                    {loading || refreshing ? (
-                        <DeliveryCard entrega={null} loading={true} />
-                    ) : entregas.length > 0 ? (
-                        entregas.map((entrega) => (
-                            <TouchableOpacity
-                                key={entrega.id}
-                                onPress={menuOpen ? () => { } : () => handleRoute(entrega.id)}
-                                disabled={menuOpen}
-                                style={styles.cardContainer}
-                            >
-                                <DeliveryCard
-                                    entrega={entrega}
-                                    loading={false}
-                                />
-                            </TouchableOpacity>
-                        ))
-                    ) : (
-                        <DeliveryCard entrega={null} loading={false} />
-                    )}
+            {/* New Dashboard Content */}
+            <View style={styles.dashboardContainer}>
+                <Text style={styles.welcomeText}>Coleta/Entrega</Text>
+                <View style={styles.dashboardGrid}>
+                    <TouchableOpacity style={styles.dashboardCard} onPress={handleDelivery}>
+                        <Text style={styles.cardCount}>{avaliableCount}</Text>
+                        <Text style={styles.cardTitle}>Entregas Disponíveis</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.dashboardCard}>
+                        <Text style={styles.cardCountPend}>R$100,00</Text>
+                        <Text style={styles.cardTitle}>Pendências de Pagamentos</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.dashboardCard} onPress={handleVeiculos}>
+                        <Ionicons name="bicycle-outline" size={32} color={theme.colors.primary} />
+                        <Text style={styles.cardTitle}>Veículos Cadastrados</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.dashboardCard} onPress={handleEntregas}>
+                        <Ionicons name="time" size={32} color={theme.colors.primary} />
+                        <Text style={styles.cardTitle}>Histórico de Entregas</Text>
+                    </TouchableOpacity>
                 </View>
-            </ScrollView>
+            </View>
         </View>
     );
 };
@@ -314,15 +327,54 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: theme.colors.text,
     },
-    content: {
+    dashboardContainer: {
         flex: 1,
         padding: 16,
     },
-    entregasContainer: {
-        flex: 1,
+    welcomeText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: theme.colors.text,
+        marginBottom: 24,
+        textAlign: 'center',
     },
-    cardContainer: {
-        marginBottom: 16,
+    dashboardGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+    },
+    dashboardCard: {
+        width: '45%',
+        aspectRatio: 1,
+        backgroundColor: theme.colors.white,
+        borderRadius: 12,
+        padding: 16,
+        margin: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 4,
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: theme.colors.text,
+        textAlign: 'center',
+        marginTop: 8,
+    },
+
+    cardCount: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: theme.colors.primary,
+        marginTop: 8,
+    },
+
+    cardCountPend: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: theme.colors.danger,
+        marginTop: 8,
     },
 });
 

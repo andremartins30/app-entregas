@@ -92,5 +92,16 @@ export const entregaService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    async countEntregasDoEntregador() {
+        const token = await AsyncStorage.getItem('@app:token');
+        const { data } = await api.get<{ count: number }>('/entregas/delivery/me/count', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return data.count;
     }
 }; 

@@ -97,6 +97,14 @@ const DeliveryCard = ({ entrega, loading }) => {
                 <Text style={styles.destinationLabel}>Destino:</Text>
                 <Text style={styles.destinationText}>{entrega.destino}</Text>
             </View>
+            {entrega.veiculo && (
+                <View style={styles.veiculoContainer}>
+                    <Text style={styles.veiculoLabel}>Veículo:</Text>
+                    <Text style={styles.veiculoText}>
+                        {entrega.veiculo.modelo} - {entrega.veiculo.placa}
+                    </Text>
+                </View>
+            )}
         </View>
     )
 }
@@ -190,6 +198,22 @@ const styles = StyleSheet.create({
         color: theme.colors.text,
     },
     destinationText: {
+        fontSize: 14,
+        color: theme.colors.text,
+        marginTop: 2,
+    },
+    veiculoContainer: {
+        marginTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+        paddingTop: 8,
+    },
+    veiculoLabel: {
+        fontSize: 14,
+        color: theme.colors.text,
+        fontWeight: 'bold',
+    },
+    veiculoText: {
         fontSize: 14,
         color: theme.colors.text,
         marginTop: 2,
