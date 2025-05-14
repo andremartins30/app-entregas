@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -11,53 +11,173 @@ import {
     ScrollView,
     SafeAreaView,
 } from 'react-native';
-import { Camera } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
+// Import the entire module for a fallback approach
+import * as ImageManipulator from 'expo-image-manipulator';
 import { entregaService } from '../../services/entregaService';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../../services/api'; // Importar o serviço de API
 
 export default function DeliveryComplete({ route }) {
     const navigation = useNavigation();
     const { entregaId, origem, destino, distancia, duracao } = route.params;
-    const [hasPermission, setHasPermission] = useState(null);
-    const [photo, setPhoto] = useState(null);
+    const [permission, requestPermission] = useCameraPermissions();
+    const [photos, setPhotos] = useState([]); // Alterar para armazenar múltiplas fotos
     const [showCamera, setShowCamera] = useState(false);
     const [receivedAmount, setReceivedAmount] = useState('100,00');
     const [paymentMethod, setPaymentMethod] = useState('Dinheiro');
     const [paymentOnSite, setPaymentOnSite] = useState(false);
     const cameraRef = useRef(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         (async () => {
-            const { status } = await Camera.requestCameraPermissionsAsync();
-            setHasPermission(status === 'granted');
+            if (!permission?.granted) {
+                const { granted } = await requestPermission();
+                if (!granted) {
+                    Alert.alert(
+                        'Permissão necessária',
+                        'É necessário conceder permissão para acessar a câmera.',
+                        [
+                            { text: 'OK', onPress: () => navigation.goBack() }
+                        ]
+                    );
+                }
+            }
         })();
-    }, []);
+    }, [permission]);
 
     const takePicture = async () => {
         if (cameraRef.current) {
-            const photo = await cameraRef.current.takePictureAsync();
-            setPhoto(photo.uri);
-            setShowCamera(false);
+            try {
+                const capturedPhoto = await cameraRef.current.takePictureAsync();
+                setPhotos((prevPhotos) => [...prevPhotos, capturedPhoto.uri]); // Adicionar nova foto ao array
+                setShowCamera(false);
+                Alert.alert('Sucesso', 'Foto tirada com sucesso!');
+            } catch (error) {
+                console.error('Erro ao tirar foto:', error);
+                Alert.alert('Erro', 'Não foi possível tirar a foto. Tente novamente.');
+            }
         }
+    };
+
+    const deletePhoto = (index) => {
+        Alert.alert(
+            'Excluir Foto',
+            'Tem certeza de que deseja excluir esta foto?',
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                    text: 'Excluir',
+                    style: 'destructive',
+                    onPress: () => {
+                        setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
+                    },
+                },
+            ]
+        );
     };
 
     const handleTakePhoto = () => {
         setShowCamera(true);
-    };
+    }; const uploadPhotos = async () => {
+        const formData = new FormData();
 
-    const handleFinishDelivery = async () => {
-        if (!photo) {
-            Alert.alert('Atenção', 'Por favor, tire uma foto da entrega antes de finalizar.');
+        console.log('Preparando para upload de', photos.length, 'fotos para entrega ID:', entregaId);
+
+        for (const [index, photoUri] of photos.entries()) {
+            try {
+                console.log('Processando imagem', index + 1, 'de', photos.length);
+
+                let processedUri = photoUri;
+
+                // Try to compress the image, but proceed even if compression fails
+                try {
+                    console.log('Tentando compactar a imagem...');
+
+                    // Try the manipulateAsync approach (preferred)
+                    if (ImageManipulator.manipulateAsync) {
+                        const result = await ImageManipulator.manipulateAsync(
+                            photoUri,
+                            [{ resize: { width: 800 } }],
+                            { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+                        );
+                        processedUri = result.uri;
+                        console.log('Imagem compactada com sucesso via manipulateAsync');
+                    }
+                    // If first approach fails, skip compression
+                    else {
+                        console.log('manipulateAsync não está disponível, usando imagem original');
+                    }
+                } catch (compressionError) {
+                    console.log('Erro na compressão, usando imagem original:', compressionError);
+                }
+
+                const fileName = `entrega-${entregaId}-${Date.now()}-${index}.jpg`;
+                formData.append('photos', {
+                    uri: processedUri,
+                    name: fileName,
+                    type: 'image/jpeg',
+                });
+
+                console.log('Foto adicionada ao FormData:', fileName);
+            } catch (error) {
+                console.error('Erro ao processar imagem:', error);
+                Alert.alert('Erro', 'Não foi possível processar a imagem.');
+                return false;
+            }
+        } try {
+            // Make sure we add entregaId to the form data
+            formData.append('entregaId', entregaId);
+            console.log('EntregaID adicionado ao FormData:', entregaId);
+
+            console.log('Enviando requisição para /entregas/upload');
+            const response = await api.post('/entregas/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                timeout: 30000, // Increase timeout to 30 seconds for large uploads
+            });
+
+            console.log('Resposta recebida:', response.status, response.data);
+
+            if (response.status !== 200) {
+                throw new Error(`Erro ao enviar fotos para o servidor: ${response.status}`);
+            }
+
+            console.log('Fotos enviadas com sucesso!');
+            Alert.alert('Sucesso', 'Fotos enviadas com sucesso!');
+            return true; // Return true to indicate success
+        } catch (error) {
+            console.error('Erro ao enviar fotos:', error);
+            const errorMessage = error.response?.data?.error || error.message || 'Erro desconhecido';
+            Alert.alert('Erro', `Não foi possível enviar as fotos: ${errorMessage}`);
+            return false; // Return false to indicate failure
+        }
+    }; const handleFinishDelivery = async () => {
+        if (photos.length === 0) {
+            Alert.alert('Atenção', 'Por favor, tire pelo menos uma foto da entrega antes de finalizar.');
             return;
         }
 
         try {
+            console.log('Iniciando processo de finalização de entrega');
+
+            // Enviar fotos para a API
+            const uploadSuccess = await uploadPhotos();
+
+            if (!uploadSuccess) {
+                console.log('Upload falhou, interrompendo finalização da entrega');
+                return; // Stop if upload failed
+            }
+
+            console.log('Upload bem-sucedido, atualizando status da entrega');
+
+            // Atualizar o status da entrega para ENTREGUE
             await entregaService.atualizarStatusEntrega(entregaId, "ENTREGUE");
 
-            // lógica para enviar a foto e outras informações
-            // await entregaService.enviarComprovante(entregaId, photo, receivedAmount, paymentMethod);
+            console.log('Entrega finalizada com sucesso!');
 
             Alert.alert(
                 'Sucesso',
@@ -76,15 +196,24 @@ export default function DeliveryComplete({ route }) {
     };
 
     if (showCamera) {
+        if (!permission) {
+            return <View style={styles.container}><Text>Verificando permissões...</Text></View>;
+        }
+        if (!permission.granted) {
+            return <View style={styles.container}><Text>Sem acesso à câmera. Verifique as permissões nas configurações do dispositivo.</Text></View>;
+        }
         return (
             <View style={styles.container}>
-                <Camera style={styles.camera} ref={cameraRef}>
+                <CameraView
+                    style={styles.camera}
+                    ref={cameraRef}
+                >
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.button} onPress={takePicture}>
                             <Text style={styles.text}>Tirar Foto</Text>
                         </TouchableOpacity>
                     </View>
-                </Camera>
+                </CameraView>
             </View>
         );
     }
@@ -104,15 +233,22 @@ export default function DeliveryComplete({ route }) {
             </View>
 
             <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
+                <View style={styles.photoContainer}>
+                    {photos.map((photoUri, index) => (
+                        <View key={index} style={styles.photoWrapper}>
+                            <Image source={{ uri: photoUri }} style={styles.photoPreview} />
+                            <TouchableOpacity
+                                style={styles.deleteIcon}
+                                onPress={() => deletePhoto(index)}
+                            >
+                                <Ionicons name="trash" size={16} color="red" />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </View>
                 <TouchableOpacity style={styles.photoButton} onPress={handleTakePhoto}>
-                    {photo ? (
-                        <Image source={{ uri: photo }} style={styles.photoPreview} />
-                    ) : (
-                        <>
-                            <Text style={styles.photoButtonText}>📸</Text>
-                            <Text style={styles.photoText}>Tirar foto da entrega</Text>
-                        </>
-                    )}
+                    <Text style={styles.photoButtonText}>+</Text>
+                    <Text style={styles.photoText}>Adicionar Foto</Text>
                 </TouchableOpacity>
 
                 <View style={styles.paymentToggleContainer}>
@@ -130,7 +266,7 @@ export default function DeliveryComplete({ route }) {
                         <View style={styles.section}>
                             <Text style={styles.label}>Valor Recebido</Text>
                             <View style={styles.inputContainer}>
-                                <Text style={styles.currencySymbol}>$</Text>
+                                <Text style={styles.currencySymbol}>R$</Text>
                                 <TextInput
                                     style={styles.input}
                                     value={receivedAmount}
@@ -272,6 +408,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333',
     },
+    photoContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    photoWrapper: {
+        position: 'relative',
+        margin: 5,
+    },
     photoButton: {
         width: '90%',
         height: 120,
@@ -300,9 +446,17 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     photoPreview: {
-        width: '100%',
-        height: '100%',
+        width: 100,
+        height: 100,
         borderRadius: 12,
+    },
+    deleteIcon: {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        borderRadius: 12,
+        padding: 4,
     },
     section: {
         marginBottom: 20,
@@ -403,4 +557,4 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#000',
     },
-}); 
+});
