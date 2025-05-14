@@ -81,40 +81,45 @@ export default function DeliveryComplete({ route }) {
 
     const handleTakePhoto = () => {
         setShowCamera(true);
-    }; const uploadPhotos = async () => {
+    };
+
+    const uploadPhotos = async () => {
         const formData = new FormData();
 
-        console.log('Preparando para upload de', photos.length, 'fotos para entrega ID:', entregaId);
+        console.log('Iniciando upload de fotos...');
+        console.log('Número de fotos:', photos.length);
+        console.log('ID da entrega:', entregaId);
 
         for (const [index, photoUri] of photos.entries()) {
             try {
-                console.log('Processando imagem', index + 1, 'de', photos.length);
+                console.log(`Processando imagem ${index + 1} de ${photos.length}`);
+                console.log('URI da imagem original:', photoUri);
 
                 let processedUri = photoUri;
 
-                // Try to compress the image, but proceed even if compression fails
+                // Tentativa de compactação da imagem
                 try {
                     console.log('Tentando compactar a imagem...');
-
-                    // Try the manipulateAsync approach (preferred)
                     if (ImageManipulator.manipulateAsync) {
+                        console.log('Chamando ImageManipulator.manipulateAsync...');
                         const result = await ImageManipulator.manipulateAsync(
                             photoUri,
                             [{ resize: { width: 800 } }],
                             { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
                         );
                         processedUri = result.uri;
-                        console.log('Imagem compactada com sucesso via manipulateAsync');
-                    }
-                    // If first approach fails, skip compression
-                    else {
-                        console.log('manipulateAsync não está disponível, usando imagem original');
+                        console.log('Imagem compactada com sucesso:', processedUri);
+                    } else {
+                        console.log('ImageManipulator.manipulateAsync não está disponível.');
                     }
                 } catch (compressionError) {
-                    console.log('Erro na compressão, usando imagem original:', compressionError);
+                    console.error('Erro ao compactar a imagem:', compressionError);
+                    console.log('Usando a imagem original sem compactação.');
                 }
 
                 const fileName = `entrega-${entregaId}-${Date.now()}-${index}.jpg`;
+                console.log('Nome do arquivo gerado:', fileName);
+
                 formData.append('photos', {
                     uri: processedUri,
                     name: fileName,
@@ -127,20 +132,22 @@ export default function DeliveryComplete({ route }) {
                 Alert.alert('Erro', 'Não foi possível processar a imagem.');
                 return false;
             }
-        } try {
-            // Make sure we add entregaId to the form data
-            formData.append('entregaId', entregaId);
-            console.log('EntregaID adicionado ao FormData:', entregaId);
+        }
 
-            console.log('Enviando requisição para /entregas/upload');
+        try {
+            console.log('Adicionando entregaId ao FormData...');
+            formData.append('entregaId', entregaId);
+            console.log('FormData preparado com sucesso.');
+
+            console.log('Enviando requisição para /entregas/upload...');
             const response = await api.post('/entregas/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
-                timeout: 30000, // Increase timeout to 30 seconds for large uploads
+                timeout: 30000, // Timeout de 30 segundos para uploads grandes
             });
 
-            console.log('Resposta recebida:', response.status, response.data);
+            console.log('Resposta recebida do servidor:', response.status, response.data);
 
             if (response.status !== 200) {
                 throw new Error(`Erro ao enviar fotos para o servidor: ${response.status}`);
@@ -148,14 +155,16 @@ export default function DeliveryComplete({ route }) {
 
             console.log('Fotos enviadas com sucesso!');
             Alert.alert('Sucesso', 'Fotos enviadas com sucesso!');
-            return true; // Return true to indicate success
+            return true; // Indica sucesso
         } catch (error) {
             console.error('Erro ao enviar fotos:', error);
             const errorMessage = error.response?.data?.error || error.message || 'Erro desconhecido';
             Alert.alert('Erro', `Não foi possível enviar as fotos: ${errorMessage}`);
-            return false; // Return false to indicate failure
+            return false; // Indica falha
         }
-    }; const handleFinishDelivery = async () => {
+    };
+
+    const handleFinishDelivery = async () => {
         if (photos.length === 0) {
             Alert.alert('Atenção', 'Por favor, tire pelo menos uma foto da entrega antes de finalizar.');
             return;
