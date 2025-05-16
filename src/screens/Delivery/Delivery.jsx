@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEntrega } from '../../hooks/useEntrega';
 import Header from "../../components/Header/Header";
 import DeliveryCard from "../../components/CardDelivery/CardDelivery";
@@ -8,6 +8,8 @@ import { theme } from '../../constants/theme';
 
 const Delivery = () => {
     const navigation = useNavigation();
+    const route = useRoute();
+    const { entregaId } = route.params || {};
     const { listarEntregasDoEntregador } = useEntrega();
     const [entregas, setEntregas] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -38,6 +40,11 @@ const Delivery = () => {
         navigation.goBack();
     };
 
+    // Se tiver um entregaId específico, filtra apenas essa entrega
+    const entregasExibidas = entregaId
+        ? entregas.filter(entrega => entrega.id === entregaId)
+        : entregas;
+
     return (
         <View style={styles.container}>
             <Header
@@ -52,18 +59,14 @@ const Delivery = () => {
                 <View style={styles.entregasContainer}>
                     {loading || refreshing ? (
                         <DeliveryCard entrega={null} loading={true} />
-                    ) : entregas.length > 0 ? (
-                        entregas.map((entrega) => (
-                            <TouchableOpacity
-                                key={entrega.id}
-                                onPress={() => handleRoute(entrega.id)}
-                                style={styles.cardContainer}
-                            >
+                    ) : entregasExibidas.length > 0 ? (
+                        entregasExibidas.map((entrega) => (
+                            <View key={entrega.id} style={styles.cardContainer}>
                                 <DeliveryCard
                                     entrega={entrega}
                                     loading={false}
                                 />
-                            </TouchableOpacity>
+                            </View>
                         ))
                     ) : (
                         <DeliveryCard entrega={null} loading={false} />

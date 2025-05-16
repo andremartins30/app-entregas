@@ -11,6 +11,7 @@ import Route from "../screens/Route/Route"
 import Register from "../screens/Register/Register";
 import Veiculos from "../screens/Veiculos/Veiculos";
 import DeliveryComplete from "../screens/DeliveryComplete/DeliveryComplete";
+import ResumoEntrega from "../screens/Entregas/ResumoEntrega";
 
 const Stack = createStackNavigator();
 
@@ -61,6 +62,10 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="DeliveryComplete"
                     component={DeliveryComplete}
+                />
+                <Stack.Screen
+                    name="ResumoEntrega"
+                    component={ResumoEntrega}
                 />
             </Stack.Navigator>
         </NavigationContainer>

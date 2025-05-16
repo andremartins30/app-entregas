@@ -73,11 +73,28 @@ export function useEntrega() {
         }
     };
 
+    const detalhesEntrega = async (entregaId: number) => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            const response = await entregaService.listarEntrega(entregaId)
+            return response
+        } catch (error: any) {
+            setError(error.response?.data?.error || 'Erro ao buscar detalhes da entrega')
+            Alert.alert('Erro', error.response?.data?.error || 'Erro ao buscar detalhes da entrega')
+            throw error
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return {
         criarEntrega,
         listarEntregas,
         listarEntregasDoEntregador,
         countEntregasDoEntregador,
+        detalhesEntrega,
         loading,
         error
     };

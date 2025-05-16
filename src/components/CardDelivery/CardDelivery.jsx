@@ -1,7 +1,9 @@
 import React from 'react'
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { theme } from '../../constants/theme'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useNavigation } from '@react-navigation/native'
+import { Ionicons } from '@expo/vector-icons'
 
 const formatDate = (dateString) => {
     if (!dateString) return 'Data não disponível';
@@ -69,6 +71,7 @@ const StatusProgress = ({ status }) => {
 };
 
 const DeliveryCard = ({ entrega, loading }) => {
+    const navigation = useNavigation();
 
     if (loading) {
         return (
@@ -86,10 +89,33 @@ const DeliveryCard = ({ entrega, loading }) => {
         );
     }
 
+    const handlePress = () => {
+        if (entrega.status === 'ENTREGUE') {
+            navigation.navigate('ResumoEntrega', { entrega });
+        } else {
+            navigation.navigate('Route', { entregaId: entrega.id });
+        }
+    };
+
     return (
-        <View style={styles.card}>
+        <TouchableOpacity
+            style={[
+                styles.card,
+                entrega.status === 'ENTREGUE' && styles.cardEntregue
+            ]}
+            onPress={handlePress}
+            activeOpacity={0.7}
+        >
             <View style={styles.header}>
-                <Text style={styles.title}>#{entrega.id}</Text>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>#{entrega.id}</Text>
+                    {entrega.status === 'ENTREGUE' && (
+                        <View style={styles.entregueFlag}>
+                            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                            <Text style={styles.entregueText}>ENTREGUE</Text>
+                        </View>
+                    )}
+                </View>
                 <Text style={styles.dateText}>{formatDate(entrega.criadaEm)}</Text>
             </View>
             <StatusProgress status={entrega.status} />
@@ -105,7 +131,7 @@ const DeliveryCard = ({ entrega, loading }) => {
                     </Text>
                 </View>
             )}
-        </View>
+        </TouchableOpacity>
     )
 }
 
@@ -127,6 +153,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 5,
         gap: 10,
+    },
+    titleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     title: {
         fontSize: 16,
@@ -217,6 +248,25 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: theme.colors.text,
         marginTop: 2,
+    },
+    cardEntregue: {
+        backgroundColor: '#E8F5E9',
+        borderLeftWidth: 4,
+        borderLeftColor: '#4CAF50',
+    },
+    entregueFlag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#E8F5E9',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+    },
+    entregueText: {
+        fontSize: 12,
+        color: '#4CAF50',
+        fontWeight: 'bold',
     },
 })
 
